@@ -1,15 +1,62 @@
-import Vue from 'vue'
-import App from './App.vue'
-import router from './router'
+import Vue from "vue";
+import App from "./App.vue";
+import router from "./router";
 
-import ElementUI from 'element-ui';
-import 'element-ui/lib/theme-chalk/index.css';
+import ElementUI from "element-ui";
+import "element-ui/lib/theme-chalk/index.css";
+
+import axios from "axios";
+
+axios.defaults.baseURL = 'http://localhost:8080';
+axios.defaults.createWithCredentials = true; // 允许跨域携带 cookie
 
 Vue.use(ElementUI);
 
-Vue.config.productionTip = false
+Vue.config.productionTip = false;
+
+// 添加请求拦截器
+axios.interceptors.request.use(
+  (config) => {
+    // 从 localStorage 中获取 token
+    const token = localStorage.getItem("jwt_token");
+    if (token) {
+      // 在请求头中添加 token 字段
+      config.headers.token = token;
+    }
+    return config;
+  },
+  (error) => {
+    // 请求错误处理
+    return Promise.reject(error);
+  }
+);
+
+axios.interceptors.response.use(
+  (response) => {
+    // 统一处理响应数据
+    return response;
+  },
+  (error) => {
+    // 响应错误处理
+    if (error.response) {
+      const {data, status} = error.response;
+
+      if (status === 401 || (data && data.msg === 'NOT_LOGIN')) {
+        // 未登录，重定向到登录页面
+        localStorage.removeItem("jwt_token"); // 清除无效 token
+        router.push('/login');
+      }else{
+        console.error('响应错误:', data || error.message);
+      }
+    }else{
+      console.error('网络错误:', error.message);
+    }
+
+    return Promise.reject(error);
+  }
+);
 
 new Vue({
   router,
-  render: h => h(App)
-}).$mount('#app')
+  render: (h) => h(App),
+}).$mount("#app");

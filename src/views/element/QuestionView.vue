@@ -1,6 +1,9 @@
 <template>
     <el-container>
-        <el-header style="font-size: 40px; background-color: rgb(238,241,246)">Quiz后台管理</el-header>
+                <el-header style="font-size: 40px; background-color: rgb(238,241,246)">
+                    Quiz后台管理
+                    <el-button type="danger" size="mini" style="float:right;margin-top:8px;" @click="logout">退出</el-button>
+                </el-header>
         <el-container>
             <el-aside width="200px" style="background-color: rgb(238, 241, 246)">
                 <el-menu :default-openeds="['1']">
@@ -283,6 +286,16 @@ export default {
             if (event.key === 'Enter') {
                 this.onSearch();
             }
+        },
+
+        // 退出登录
+        logout() {
+            localStorage.removeItem('jwt_token');
+            this.$router.push('/login');
+            this.$message({
+                type: 'success',
+                message: '已退出登录',
+            });
         },
     },
     mounted() {

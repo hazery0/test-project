@@ -57,6 +57,8 @@ export default {
             if (res.data.code === 1) {
               // 登录成功，保存 token 并跳转
               if (res.data.data) {
+                const token = res.data.data;
+                localStorage.setItem('jwt_token', token); // Save token to localStorage
                 localStorage.setItem('jwt_token', res.data.data);
               }
               this.$message.success('登录成功');
